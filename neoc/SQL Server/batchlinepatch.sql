@@ -1,4 +1,4 @@
-use MASTER
+USE MASTER
 GO
 
 
@@ -23,4 +23,70 @@ LOG ON
 	SIZE = 5MB,
 	FILEGROWTH = 5%
 )
+
+
+
+USE neoc
+GO
+
+
+
+IF (OBJECT_ID('[dbo].[inv]') IS NOT NULL)
+	DROP TABLE [dbo].[inv]
+GO
+
+
+
+IF (OBJECT_ID('[dbo].[prod]') IS NOT NULL)
+	DROP TABLE [dbo].[prod]
+GO
+
+
+
+IF (OBJECT_ID('[dbo].[cust]') IS NOT NULL)
+	DROP TABLE [dbo].[cust]
+GO
+
+
+CREATE TABLE [dbo].[cust]
+(
+	[id] int not null primary key identity(1,1),
+	[cust_name] nvarchar(100) not null,
+	[cust_address] nvarchar(max) not null,
+	[cust_tel] nvarchar(20) not null,
+)
+
+CREATE TABLE [dbo].[prod]
+(
+	[id] int not null primary key identity(1,1),
+	[desc] nvarchar(max) not null,
+	[price] money not null
+)
+
+CREATE TABLE [dbo].[inv]
+(
+	[id] int not null primary key identity(1,1),
+	[date] date not null,
+	[prod] int not null references [dbo].[prod]([id]),
+	[line_total] money not null
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
