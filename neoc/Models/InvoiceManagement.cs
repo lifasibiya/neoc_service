@@ -29,29 +29,44 @@ namespace neoc.Models
             param.Add("address", customer.address, System.Data.DbType.String, System.Data.ParameterDirection.Input);
             param.Add("tel", customer.tel, System.Data.DbType.String, System.Data.ParameterDirection.Input);
 
-            var retval = ExecProc<int>("[dbo].[sp_addCustomer]", param);
-            return retval;
+            IEnumerable<int> retval = ExecProc<int>("[dbo].[sp_addCustomer]", param);
+            return retval.FirstOrDefault();
         }
 
         bool IRepositoryInvoice.AddInvoice(Invoice invoice)
         {
-            throw new NotImplementedException();
+            var param = new DynamicParameters();
+            param.Add("customer", invoice.customer, System.Data.DbType.Int16, System.Data.ParameterDirection.Input);
+            param.Add("product", invoice.product, System.Data.DbType.Int16, System.Data.ParameterDirection.Input);
+            param.Add("quantity", invoice.quantity, System.Data.DbType.Int16, System.Data.ParameterDirection.Input);
+
+            IEnumerable<bool> retval = ExecProc<bool>("[dbo].[sp_addInvoice]", param);
+            return retval.FirstOrDefault();
         }
 
         int IRepositoryInvoice.AddProduct(Product product)
         {
-            throw new NotImplementedException();
+            var param = new DynamicParameters();
+            param.Add("desc", product.desc, System.Data.DbType.String, System.Data.ParameterDirection.Input);
+            param.Add("price", product.price, System.Data.DbType.Double, System.Data.ParameterDirection.Input);
+
+            IEnumerable<int> retval = ExecProc<int>("[dbo].[sp_addProduct]", param);
+            return retval.FirstOrDefault();
         }
 
         IEnumerable<GetInvoice> IRepositoryInvoice.GetAllInvoices()
         {
-            throw new NotImplementedException();
+            IEnumerable<GetInvoice> retval = ExecProc<GetInvoice>("[dbo].[sp_getAllInvoices]", null);
+            return retval;
         }
 
-        GetInvoice IRepositoryInvoice.GetInvoice(int id)
+        GetInvoice? IRepositoryInvoice.GetInvoice(int id)
         {
-            var retval = ExecProc<int>("[dbo].[sp_getAllInvoices]", null);
-            return retval;
+            var param = new DynamicParameters();
+            param.Add("id", id, System.Data.DbType.Int16, System.Data.ParameterDirection.Input);
+
+            IEnumerable<GetInvoice> retval = ExecProc<GetInvoice>("[dbo].[sp_getInvoice]", param);
+            return retval.FirstOrDefault();
         }
     }
 }

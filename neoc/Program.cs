@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using neoc.Data;
+using neoc.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 var conn = builder.Configuration["ConnectionStrings:neoc"];
 builder.Services.AddDbContext<NEOCDBContext>(cfg => cfg.UseSqlServer(conn));
+builder.Services.AddScoped<IRepositoryInvoice, InvoiceManagement>();
 
 var app = builder.Build();
 

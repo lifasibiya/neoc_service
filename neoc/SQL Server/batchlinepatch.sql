@@ -98,7 +98,6 @@ IF (OBJECT_ID('[dbo].[sp_getAllInvoices]') IS NOT NULL)
 GO
 
 CREATE PROC [dbo].[sp_getAllInvoices]
-	@id int
 AS
 SELECT i.[id],i.[date],i.[lineTotal],i.[quantity],
 	c.[cust_name] as [name],c.[cust_address] as [address],c.[cust_tel] as [tel],
@@ -109,6 +108,7 @@ SELECT i.[id],i.[date],i.[lineTotal],i.[quantity],
 	JOIN [dbo].[prod] p
 	ON i.prod = p.id
 GO
+
 
 IF (OBJECT_ID('[dbo].[sp_getInvoice]') IS NOT NULL)
 	DROP PROCEDURE [dbo].[sp_getInvoice]
@@ -134,15 +134,14 @@ IF (OBJECT_ID('[dbo].[sp_addInvoice]') IS NOT NULL)
 GO
 
 CREATE PROC [dbo].[sp_addInvoice]
-	@date date,
 	@customer int,
 	@product int,
 	@quantity int
 AS
 INSERT INTO [dbo].[inv]([date],[cust],[prod],[quantity],[lineTotal])
-VALUES (@date, @customer, @product, @quantity, [dbo].[fn_getLineTotal](@product,@quantity))
+VALUES (GETDATE(), @customer, @product, @quantity, [dbo].[fn_getLineTotal](@product,@quantity))
 
-SELECT 1
+SELECT 1 AS RETVAL
 GO
 
 
@@ -157,7 +156,7 @@ AS
 INSERT INTO [dbo].[prod]([desc],[price])
 VALUES (@desc, @price)
 
-SELECT SCOPE_IDENTITY()
+SELECT SCOPE_IDENTITY() AS RETVAL
 GO
 
 
@@ -174,7 +173,7 @@ AS
 INSERT INTO [dbo].[cust]([cust_name],[cust_address],[cust_tel])
 VALUES (@name, @address, @tel)
 
-SELECT SCOPE_IDENTITY()
+SELECT SCOPE_IDENTITY() AS RETVAL
 GO
 
 
