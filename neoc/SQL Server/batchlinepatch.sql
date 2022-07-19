@@ -67,9 +67,120 @@ CREATE TABLE [dbo].[inv]
 (
 	[id] int not null primary key identity(1,1),
 	[date] date not null,
+	[cust] int not null references [dbo].[cust]([id]),
 	[prod] int not null references [dbo].[prod]([id]),
-	[line_total] money not null
+	[lineTotal] money not null,
+	[quantity] int not null
 )
+
+
+
+USE neoc
+GO
+
+IF (OBJECT_ID('[dbo].[fn_getLineTotal]') IS NOT NULL)
+	DROP FUNCTION [dbo].[fn_getLineTotal]
+GO
+
+CREATE FUNCTION [dbo].[fn_getLineTotal](@prod_id int, @quantity int)
+	RETURNS MONEY
+AS
+BEGIN
+	RETURN (SELECT [price] * @quantity AS total
+			FROM [dbo].[prod]
+			WHERE [id] = @prod_id)
+END
+GO
+
+
+IF (OBJECT_ID('[dbo].[sp_getAllInvoices]') IS NOT NULL)
+	DROP PROCEDURE [dbo].[sp_getAllInvoices]
+GO
+
+CREATE PROC [dbo].[sp_getAllInvoices]
+	@id int
+AS
+SELECT i.[id],i.[date],i.[lineTotal],i.[quantity],
+	c.[cust_name] as [name],c.[cust_address] as [address],c.[cust_tel] as [tel],
+	p.[desc],p.[price]
+	FROM [dbo].[inv] i
+	JOIN [dbo].[cust] c
+	ON i.cust = c.id
+	JOIN [dbo].[prod] p
+	ON i.prod = p.id
+GO
+
+IF (OBJECT_ID('[dbo].[sp_getInvoice]') IS NOT NULL)
+	DROP PROCEDURE [dbo].[sp_getInvoice]
+GO
+
+CREATE PROC [dbo].[sp_getInvoice]
+	@id int
+AS
+SELECT i.[id],i.[date],i.[lineTotal],i.[quantity],
+	c.[cust_name] as [name],c.[cust_address] as [address],c.[cust_tel] as [tel],
+	p.[desc],p.[price]
+	FROM [dbo].[inv] i
+	JOIN [dbo].[cust] c
+	ON i.cust = c.id
+	JOIN [dbo].[prod] p
+	ON i.prod = p.id
+	WHERE i.[id] = @id
+GO
+
+
+IF (OBJECT_ID('[dbo].[sp_addInvoice]') IS NOT NULL)
+	DROP PROCEDURE [dbo].[sp_addInvoice]
+GO
+
+CREATE PROC [dbo].[sp_addInvoice]
+	@date date,
+	@customer int,
+	@product int,
+	@quantity int
+AS
+INSERT INTO [dbo].[inv]([date],[cust],[prod],[quantity],[lineTotal])
+VALUES (@date, @customer, @product, @quantity, [dbo].[fn_getLineTotal](@product,@quantity))
+
+SELECT 1
+GO
+
+
+IF (OBJECT_ID('[dbo].[sp_addProduct]') IS NOT NULL)
+	DROP PROCEDURE [dbo].[sp_addProduct]
+GO
+
+CREATE PROC [dbo].[sp_addProduct]
+	@desc nvarchar(max),
+	@price money
+AS
+INSERT INTO [dbo].[prod]([desc],[price])
+VALUES (@desc, @price)
+
+SELECT SCOPE_IDENTITY()
+GO
+
+
+
+IF (OBJECT_ID('[dbo].[sp_addCustomer]') IS NOT NULL)
+	DROP PROCEDURE [dbo].[sp_addCustomer]
+GO
+
+CREATE PROC [dbo].[sp_addCustomer]
+	@name nvarchar(100),
+	@address nvarchar(max),
+	@tel nvarchar(20)
+AS
+INSERT INTO [dbo].[cust]([cust_name],[cust_address],[cust_tel])
+VALUES (@name, @address, @tel)
+
+SELECT SCOPE_IDENTITY()
+GO
+
+
+
+
+
 
 
 
